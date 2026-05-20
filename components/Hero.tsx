@@ -1,25 +1,44 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 
 export default function Hero() {
-  return (
-    <section className="relative h-screen min-h-[700px] flex items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 z-0">
-        <div
-          className="hero-zoom absolute inset-0 bg-center bg-cover"
-          style={{
-            backgroundImage:
-              "url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&q=90')",
-            backgroundColor: "#1a1a1a",
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a]/70 via-[#0a0a0a]/40 to-[#0a0a0a]/90" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a]/60 via-transparent to-[#0a0a0a]/60" />
-      </div>
+  const ref = useRef<HTMLElement>(null);
+  const { scrollY } = useScroll();
 
-      <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
+  const bgY = useTransform(scrollY, [0, 700], [0, -180]);
+  const bgScale = useTransform(scrollY, [0, 700], [1, 1.08]);
+  const textY = useTransform(scrollY, [0, 500], [0, -70]);
+  const heroOpacity = useTransform(scrollY, [0, 380], [1, 0]);
+
+  return (
+    <section
+      ref={ref}
+      className="relative h-screen min-h-[700px] flex items-center justify-center overflow-hidden"
+    >
+      {/* Parallax background layer */}
+      <motion.div
+        className="absolute inset-[-10%] z-0 bg-cover bg-center"
+        style={{
+          backgroundImage:
+            "url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&q=90')",
+          backgroundColor: "#1a1a1a",
+          y: bgY,
+          scale: bgScale,
+        }}
+      />
+
+      {/* Overlays */}
+      <div className="absolute inset-0 z-1 bg-gradient-to-b from-[#0a0a0a]/70 via-[#0a0a0a]/40 to-[#0a0a0a]/90" />
+      <div className="absolute inset-0 z-1 bg-gradient-to-r from-[#0a0a0a]/60 via-transparent to-[#0a0a0a]/60" />
+
+      {/* Content — fades + rises on scroll */}
+      <motion.div
+        className="relative z-10 text-center px-6 max-w-5xl mx-auto"
+        style={{ y: textY, opacity: heroOpacity }}
+      >
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -71,10 +90,12 @@ export default function Hero() {
             Explore Our Fleet
           </a>
         </motion.div>
-      </div>
+      </motion.div>
 
+      {/* Scroll indicator */}
       <motion.div
         className="absolute bottom-28 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2"
+        style={{ opacity: heroOpacity }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.4 }}
@@ -88,6 +109,7 @@ export default function Hero() {
         </motion.div>
       </motion.div>
 
+      {/* Stats bar — fixed at bottom of hero, no parallax */}
       <motion.div
         className="absolute bottom-0 left-0 right-0 z-10 border-t border-[#c9a84c]/10 bg-[#0a0a0a]/80 backdrop-blur-sm hidden md:flex"
         initial={{ opacity: 0, y: 20 }}
