@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { motion, useScroll, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 const vehicles = [
   {
@@ -54,18 +54,21 @@ export default function Fleet() {
   const ref = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end end"],
-  });
-
   useEffect(() => {
-    const unsubscribe = scrollYProgress.on("change", (v) => {
-      const i = Math.floor(v * SECTION_MULTIPLIER);
+    const update = () => {
+      if (!ref.current) return;
+      const rect = ref.current.getBoundingClientRect();
+      const scrolled = -rect.top;
+      const scrollable = rect.height - window.innerHeight;
+      if (scrollable <= 0) return;
+      const progress = Math.max(0, Math.min(1, scrolled / scrollable));
+      const i = Math.floor(progress * SECTION_MULTIPLIER);
       setActiveIndex(Math.max(0, Math.min(vehicles.length - 1, i)));
-    });
-    return unsubscribe;
-  }, [scrollYProgress]);
+    };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    return () => window.removeEventListener("scroll", update);
+  }, []);
 
   const active = vehicles[activeIndex];
 
@@ -75,7 +78,7 @@ export default function Fleet() {
       ref={ref}
       style={{ height: `${SECTION_MULTIPLIER * 100}vh` }}
     >
-      <div className="sticky top-0 h-screen bg-[#0a0a0a] overflow-hidden">
+      <div className="sticky top-0 h-screen bg-[#0a0a0a]" style={{ overflow: "clip" }}>
 
         {/* ── DESKTOP LAYOUT ── */}
         <div className="hidden md:block absolute inset-0">
