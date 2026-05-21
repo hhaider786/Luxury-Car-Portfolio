@@ -25,7 +25,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${playfairDisplay.variable} ${inter.variable}`}>
-      <body className="bg-[#0a0a0a] text-white antialiased overflow-x-hidden">
+      <body className="bg-[#0a0a0a] text-white antialiased overflow-x-clip">
         {children}
       </body>
     </html>
