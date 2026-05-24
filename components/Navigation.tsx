@@ -3,12 +3,16 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Phone } from "lucide-react";
+import Link from "next/link";
+import { FocusTrap } from "@/lib/a11y/FocusTrap";
+import { useScrollLock } from "@/lib/a11y/useScrollLock";
+import { useEscapeKey } from "@/lib/a11y/useEscapeKey";
 
 const navLinks = [
-  { href: "#fleet", label: "Our Fleet" },
-  { href: "#services", label: "Services" },
-  { href: "#about", label: "About" },
-  { href: "#contact", label: "Contact" },
+  { href: "/#fleet", label: "Our fleet" },
+  { href: "/#services", label: "Services" },
+  { href: "/#about", label: "About" },
+  { href: "/contact", label: "Contact" },
 ];
 
 export default function Navigation() {
@@ -16,71 +20,80 @@ export default function Navigation() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 50);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useScrollLock(menuOpen);
+  useEscapeKey(() => setMenuOpen(false), menuOpen);
 
   return (
     <>
       <motion.nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
-            ? "bg-[#0a0a0a]/95 backdrop-blur-md border-b border-[#c9a84c]/10 py-4"
+            ? "bg-[#0a0a0a]/95 backdrop-blur-md border-b border-[#e5c158]/15 py-4"
             : "bg-transparent py-6"
         }`}
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
+        aria-label="Main navigation"
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-          <a href="#" className="flex flex-col leading-none group">
+          <Link href="/" className="flex flex-col leading-none group" aria-label="Prestige Chauffeur — home">
             <span
-              className="text-2xl font-bold tracking-[0.15em] text-white group-hover:text-[#c9a84c] transition-colors duration-300"
+              className="text-2xl font-bold tracking-[0.15em] text-white group-hover:text-[#e5c158] transition-colors duration-300"
               style={{ fontFamily: "var(--font-playfair-var), Georgia, serif" }}
             >
               PRESTIGE
             </span>
-            <span className="text-[0.6rem] tracking-[0.35em] uppercase text-[#c9a84c]">
+            <span className="text-[0.6rem] tracking-[0.35em] uppercase text-[#e5c158]">
               Chauffeur
             </span>
-          </a>
+          </Link>
 
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm tracking-widest uppercase text-[#aaa] hover:text-[#c9a84c] transition-colors duration-300 relative group"
+                className="text-sm tracking-widest uppercase text-[#bbb] hover:text-[#e5c158] transition-colors duration-300 relative group"
               >
                 {link.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-px bg-[#c9a84c] group-hover:w-full transition-all duration-300" />
-              </a>
+                <span aria-hidden className="absolute -bottom-1 left-0 w-0 h-px bg-[#e5c158] group-hover:w-full transition-all duration-300" />
+              </Link>
             ))}
           </div>
 
           <div className="hidden md:flex items-center gap-4">
             <a
-              href="tel:+1234567890"
-              className="flex items-center gap-2 text-sm text-[#aaa] hover:text-[#c9a84c] transition-colors"
+              href="tel:+442079460900"
+              className="flex items-center gap-2 text-sm text-[#bbb] hover:text-[#e5c158] transition-colors"
+              aria-label="Call +44 20 7946 0900"
             >
-              <Phone size={14} />
-              <span className="tracking-wider">+1 (234) 567-890</span>
+              <Phone size={14} aria-hidden />
+              <span className="tracking-wider">+44 20 7946 0900</span>
             </a>
             <a
-              href="#booking"
-              className="px-6 py-2.5 text-xs tracking-[0.2em] uppercase border border-[#c9a84c] text-[#c9a84c] hover:bg-[#c9a84c] hover:text-black transition-all duration-300 font-medium"
+              href="/#booking"
+              className="px-6 py-2.5 text-xs tracking-[0.2em] uppercase border border-[#e5c158] text-[#e5c158] hover:bg-[#e5c158] hover:text-black transition-all duration-300 font-medium"
             >
-              Book Now
+              Book now
             </a>
           </div>
 
           <button
+            type="button"
             className="md:hidden text-white"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Toggle menu"
+            onClick={() => setMenuOpen((o) => !o)}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-nav"
           >
-            {menuOpen ? <X size={24} /> : <Menu size={24} />}
+            {menuOpen ? <X size={24} aria-hidden /> : <Menu size={24} aria-hidden />}
           </button>
         </div>
       </motion.nav>
@@ -88,38 +101,42 @@ export default function Navigation() {
       <AnimatePresence>
         {menuOpen && (
           <motion.div
+            id="mobile-nav"
             className="fixed inset-0 z-40 bg-[#0a0a0a] flex flex-col pt-28 px-8"
             initial={{ opacity: 0, x: "100%" }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: "100%" }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile navigation"
           >
-            <div className="flex flex-col gap-8">
+            <FocusTrap active className="flex flex-col gap-8">
               {navLinks.map((link, i) => (
-                <motion.a
+                <motion.div
                   key={link.href}
-                  href={link.href}
-                  className="text-3xl font-light tracking-widest text-white hover:text-[#c9a84c] transition-colors"
-                  style={{ fontFamily: "var(--font-playfair-var), Georgia, serif" }}
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.1 + i * 0.05 }}
-                  onClick={() => setMenuOpen(false)}
                 >
-                  {link.label}
-                </motion.a>
+                  <Link
+                    href={link.href}
+                    className="block text-3xl font-light tracking-widest text-white hover:text-[#e5c158] transition-colors"
+                    style={{ fontFamily: "var(--font-playfair-var), Georgia, serif" }}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {link.label}
+                  </Link>
+                </motion.div>
               ))}
-              <motion.a
-                href="#booking"
-                className="mt-4 w-full text-center py-4 border border-[#c9a84c] text-[#c9a84c] tracking-[0.2em] uppercase text-sm"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.35 }}
+              <a
+                href="/#booking"
+                className="mt-4 w-full text-center py-4 border border-[#e5c158] text-[#e5c158] tracking-[0.2em] uppercase text-sm"
                 onClick={() => setMenuOpen(false)}
               >
-                Book Now
-              </motion.a>
-            </div>
+                Book now
+              </a>
+            </FocusTrap>
           </motion.div>
         )}
       </AnimatePresence>

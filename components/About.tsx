@@ -90,14 +90,14 @@ export default function About() {
     >
       <div className="max-w-7xl mx-auto">
         <motion.div
-          className="grid grid-cols-2 md:grid-cols-4 gap-px bg-[#c9a84c]/10 mb-24 border border-[#c9a84c]/10"
+          className="grid grid-cols-2 md:grid-cols-4 gap-px bg-[#c9a84c]/10 mb-12 md:mb-24 border border-[#c9a84c]/10"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
           {stats.map((s) => (
-            <div key={s.label} className="bg-[#0a0a0a] py-10 text-center">
+            <div key={s.label} className="bg-[#0a0a0a] py-7 md:py-10 text-center">
               <div
                 className="text-4xl md:text-5xl font-bold text-[#c9a84c]"
                 style={{ fontFamily: "var(--font-playfair-var), Georgia, serif" }}
@@ -111,7 +111,7 @@ export default function About() {
           ))}
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-16 items-center">
+        <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
           <motion.div
             className="relative"
             initial={{ opacity: 0, x: -40 }}
@@ -120,7 +120,7 @@ export default function About() {
             transition={{ duration: 0.7 }}
           >
             <div
-              className="w-full h-96 bg-cover bg-center"
+              className="w-full h-64 md:h-96 bg-cover bg-center"
               style={{
                 backgroundImage:
                   "url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800&q=80')",

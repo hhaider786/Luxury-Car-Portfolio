@@ -10,16 +10,18 @@ import Footer from "@/components/Footer";
 
 export default function Home() {
   return (
-    <main>
+    <>
       <Navigation />
-      <Hero />
-      <Fleet />
-      <Features />
-      <Services />
-      <Booking />
-      <Testimonials />
-      <About />
+      <main id="main">
+        <Hero />
+        <Fleet />
+        <Features />
+        <Services />
+        <Booking />
+        <Testimonials />
+        <About />
+      </main>
       <Footer />
-    </main>
+    </>
   );
 }
